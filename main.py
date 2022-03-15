@@ -1,6 +1,6 @@
 import pygame
 from pygame.locals import *
-from random import randint, random
+import random
 from time import time
 from config import alph, cons, minv, minc
 import checker.new_check as checker
@@ -39,6 +39,7 @@ HIGHLIGHT_CORRECT = LIGHT_GREEN
 HIGHLIGHT_WRONG = LIGHT_RED
 
 COLOURS = [GREEN, RED, BLUE, ORANGE]
+t1 = 0
 
 
 def draw_square(col, x, y, width=0):
@@ -54,8 +55,11 @@ def draw_blank():
 
 
 def tech_pygame():
+    global t1
     pygame.display.update()
     clock.tick(FPS)
+    # print(round(1/(time() - t1)))
+    t1 = time()
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
@@ -71,15 +75,16 @@ def inField(x, y):
     return x >= 0 and y >= 0 and x < WIDTH and y < HEIGHT
 
 
-def generate_letters():
-    global letters
+def generate_letters(seed=None):
+    if seed is not None:
+        random.seed(seed)
     letters = []
     sm = sum([x[1] for x in alph])
     while not letters:
         numc = 0
         numv = 0
         for x in range(20):
-            t = random() * sm
+            t = random.random() * sm
             for let, pr in alph:
                 if t < pr:
                     letters.append(let)
@@ -91,13 +96,17 @@ def generate_letters():
                 numc += 1
         if numc < minc or numv < minv:
             letters = []
+    return letters
 
 
 class Field:
-    def __init__(self):
+    def __init__(self, letters):
         self.field = [['' for x in range(WIDTH)] for y in range(HEIGHT)]
         self.spellcheck = True
+        self.scorecount = True
         self.highlight = None
+        for i in range(len(letters)):
+            self.field[0][i] = letters[i]
 
     def draw(self):
         draw_blank()
@@ -110,6 +119,9 @@ class Field:
             for y in range(HEIGHT):
                 if self.field[y][x]:
                     display.blit(font.render(self.field[y][x], True, BLACK), (x * BW + 10, y * BW - 8))
+        if self.scorecount:
+            display.blit(font.render("SCORE: ", True, BLACK), ((WIDTH + 3) * BW, BH))
+            display.blit(font.render(str(count_score(self)), True, BLACK), ((WIDTH + 3) * BW + font.size("SCORE: ")[0], BH))
 
     def highlight_correct(self):
         for x in range(WIDTH):
@@ -165,8 +177,61 @@ class Field:
                 draw_square(tuple(res), x, y)
 
 
+def count_score(field):
+    print('\n\n\n\n')
+    score = 0
+    for x in range(WIDTH):
+        curl = 0
+        for y in range(HEIGHT):
+            if field.field[y][x]:
+                curl += 1
+                score += max(0, (curl - 5) // 2)
+            else:
+                curl = 0
+    for y in range(HEIGHT):
+        curl = 0
+        for x in range(WIDTH):
+            if field.field[y][x]:
+                curl += 1
+                score += max(0, (curl - 5) // 2)
+            else:
+                curl = 0
+
+    used = [[False for x in range(WIDTH)] for y in range(HEIGHT)]
+
+
+    def dfs(x, y, used, s):
+        used[y][x] = True
+        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+            if 0 <= x + dx < WIDTH and 0 <= y + dy < HEIGHT and field.field[y + dy][x + dx]:
+                if used[y + dy][x + dx]:
+                    pass # TODO something about the circles
+                else:
+                    s.add((abs(dx), abs(dy)))
+                    dfs(x + dx, y + dy, used, s)
+
+
+    numc = 0
+    for y in range(HEIGHT):
+        for x in range(WIDTH):
+            if field.field[y][x] and not used[y][x]:
+                cur = None
+                s = set()
+                dfs(x, y, used, s)
+                numc += 1
+
+    if numc == 1:
+        score += 2
+
+    return score
+
+
 def toggle_spellcheck(nstate):
     gameField.spellcheck = not gameField.spellcheck
+
+
+def toggle_scorecount(nstate):
+    gameField.scorecount = not gameField.scorecount
 
 
 class Tick:
@@ -175,7 +240,7 @@ class Tick:
         self.effect = effect
         self.state = state
         self.highlight = False
-        self.y = y0 + 1
+        self.y = y0 + 5
         self.x = WIDTH + 3
 
     def draw(self):
@@ -185,7 +250,7 @@ class Tick:
         if self.state:
             pygame.draw.line(display, BLACK, (self.x * BW + 10, self.y * BH + 15), (self.x * BW + BW // 2, (self.y + 1) * BH - 10), width=4)
             pygame.draw.line(display, BLACK, (self.x * BW + BW // 2, (self.y + 1) * BH - 10), ((self.x + 1) * BW - 10, self.y * BH + 7), width=4)
-        display.blit(font.render(self.text, True, BLACK), (A + 4 * BW + 10, BH + 2 * BH * (self.y - 1) - 5))
+        display.blit(font.render(self.text, True, BLACK), (A + 4 * BW + 10, BH * self.y - 5))
 
     def check_highlight(self, pos_x, pos_y):
         if self.x * BW <= pos_x <= (self.x + 1) * BW and self.y * BH <= pos_y <= (self.y + 1) * BH:
@@ -200,9 +265,8 @@ class Tick:
 
 
 class Menu:
-    def __init__(self):
-        # self.buttons = [["Spellcheck", "Tick", toggle_spellcheck, False, False]]
-        self.buttons = [Tick("Spellcheck", toggle_spellcheck, 0, True)]
+    def __init__(self, buttons):
+        self.buttons = buttons
 
     def draw(self):
         self.highlight()
@@ -253,16 +317,14 @@ class Cursor:
             display.blit(font.render(self.carry, True, BLACK), (self.cellx * BW + 10, self.celly * BW - 8))
 
 
-gameField = Field()
+gameField = Field(generate_letters(1543))
 cursor = Cursor()
-menu = Menu()
-
-generate_letters()
+menu = Menu([
+                Tick("Spellcheck", toggle_spellcheck, 0, True),
+                Tick("Score Count", toggle_scorecount, 1, True)
+            ])
 
 curx, cury = 0, 0
-
-for i in range(20):
-    gameField.field[0][i] = letters[i]
 
 while True:
     cursor.update_coords()
