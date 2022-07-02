@@ -147,15 +147,18 @@ def count_score(field):
     used = [[False for x in range(WIDTH)] for y in range(HEIGHT)]
 
 
-    def dfs(x, y, used, s):
+    def dfs(x, y, used, s, xf, yf):
+        ring_score = 0
         used[y][x] = True
         for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
             if 0 <= x + dx < WIDTH and 0 <= y + dy < HEIGHT and field.field[y + dy][x + dx]:
                 if used[y + dy][x + dx]:
-                    pass # TODO something about the circles
+                    if (xf, yf) != (x + dx, y + dy):
+                        ring_score += 1
                 else:
                     s.add((abs(dx), abs(dy)))
-                    dfs(x + dx, y + dy, used, s)
+                    ring_score += dfs(x + dx, y + dy, used, s, x, y)
+        return ring_score
 
 
     numc = 0
@@ -164,7 +167,10 @@ def count_score(field):
             if field.field[y][x] and not used[y][x]:
                 cur = None
                 s = set()
-                dfs(x, y, used, s)
+                ring = dfs(x, y, used, s, -1, -1)
+                score += ring // 2
+                if len(s) <= 1:
+                    score -= 1
                 numc += 1
 
     if numc == 1:
