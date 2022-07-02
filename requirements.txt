@@ -1,1 +1,5 @@
 pygame==2.1.2
+autoflake==1.4
+black==22.6.0
+isort==5.10.1
+pre-commit==2.19.0
