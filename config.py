@@ -119,14 +119,21 @@ t1 = 0
 
 deliverEvents = dict()
 
-def registerForEvent(type, function):
+def registerForEvent(type, function, checker=lambda event: True):
+    global deliverEvents
     if type not in deliverEvents:
         deliverEvents[type] = []
-    deliverEvents[type].append(function)
+    deliverEvents[type].append((checker, function))
+
+def clearRegisteredEvents():
+    global deliverEvents
+    deliverEvents.clear()
 
 def tech_pygame():
+    global deliverEvents
     global t1
     pygame.display.update()
+    display.fill(WHITE)
     clock.tick(FPS)
     t1 = time.time()
     for event in pygame.event.get():
@@ -134,5 +141,6 @@ def tech_pygame():
             pygame.quit()
             exit()
         if event.type in deliverEvents:
-            for reaction in deliverEvents[event.type]:
-                reaction()
+            for checker, reaction in deliverEvents[event.type]:
+                if checker(event):
+                    reaction()
