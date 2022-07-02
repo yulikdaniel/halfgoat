@@ -183,7 +183,7 @@ def toggle_scorecount(field, instance):
     field.scorecount = not field.scorecount
 
 
-NUM_FIELDS = 3;
+NUM_FIELDS = 3
 fields = [0 for x in range(NUM_FIELDS)]
 carry = ['' for x in range(NUM_FIELDS)]
 cur_num = 0
