@@ -1,6 +1,27 @@
-from config import *
-import pygame
 import random
+
+import pygame
+
+from config import (
+    BH,
+    BLACK,
+    BW,
+    GREY,
+    HEIGHT,
+    HIGHLIGHT_CORRECT,
+    HIGHLIGHT_WRONG,
+    WHITE,
+    WIDTH,
+    A,
+    B,
+    alph,
+    checker,
+    cons,
+    display,
+    font,
+    minc,
+    minv,
+)
 
 
 def draw_square_pos(col, x, y, xsz=BW, ysz=BH, width=0):
@@ -69,7 +90,9 @@ class Field:
                     display.blit(font.render(self.field[y][x], True, BLACK), (x * BW + 12, y * BW + 4))
         if self.scorecount:
             display.blit(font.render("SCORE: ", True, BLACK), ((WIDTH + 3) * BW, BH))
-            display.blit(font.render(str(count_score(self)), True, BLACK), ((WIDTH + 3) * BW + font.size("SCORE: ")[0], BH))
+            display.blit(
+                font.render(str(count_score(self)), True, BLACK), ((WIDTH + 3) * BW + font.size("SCORE: ")[0], BH)
+            )
 
     def highlight_correct(self):
         for x in range(WIDTH):
@@ -146,23 +169,20 @@ def count_score(field):
 
     used = [[False for x in range(WIDTH)] for y in range(HEIGHT)]
 
-
     def dfs(x, y, used, s):
         used[y][x] = True
         for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
             if 0 <= x + dx < WIDTH and 0 <= y + dy < HEIGHT and field.field[y + dy][x + dx]:
                 if used[y + dy][x + dx]:
-                    pass # TODO something about the circles
+                    pass  # TODO something about the circles
                 else:
                     s.add((abs(dx), abs(dy)))
                     dfs(x + dx, y + dy, used, s)
-
 
     numc = 0
     for y in range(HEIGHT):
         for x in range(WIDTH):
             if field.field[y][x] and not used[y][x]:
-                cur = None
                 s = set()
                 dfs(x, y, used, s)
                 numc += 1
