@@ -1,6 +1,8 @@
+import pygame
+
 from config import *
 from field import *
-import pygame
+
 
 class Tick:
     def __init__(self, text, effect, x0=0, y0=0, state=False):
@@ -16,10 +18,14 @@ class Tick:
         offsety += self.y
         draw_square_pos(GREY, offsetx, offsety - 10, width=3)
         if self.highlight:
-            draw_square_pos(HIGHLIGHT_COLOUR, offsetx, offsety-10)
+            draw_square_pos(HIGHLIGHT_COLOUR, offsetx, offsety - 10)
         if self.state:
-            pygame.draw.line(display, BLACK, (offsetx + 10, offsety + 5), (offsetx + BW // 2, offsety + BH - 20), width=4)
-            pygame.draw.line(display, BLACK, (offsetx + BW // 2, offsety + BH - 20), (offsetx + BW - 10, offsety - 3), width=4)
+            pygame.draw.line(
+                display, BLACK, (offsetx + 10, offsety + 5), (offsetx + BW // 2, offsety + BH - 20), width=4
+            )
+            pygame.draw.line(
+                display, BLACK, (offsetx + BW // 2, offsety + BH - 20), (offsetx + BW - 10, offsety - 3), width=4
+            )
         display.blit(font.render(self.text, True, BLACK), (offsetx + BW + 10, offsety))
 
     def check_highlight(self, pos_x, pos_y):
@@ -46,7 +52,10 @@ class Button:
         display.blit(self.texts[self.highlight], (self.x + offsetx, self.y + offsety))
 
     def check_highlight(self, pos_x, pos_y):
-        if self.x <= pos_x <= self.x + self.texts[self.highlight].get_width() and self.y <= pos_y <= self.y + self.texts[self.highlight].get_height():
+        if (
+            self.x <= pos_x <= self.x + self.texts[self.highlight].get_width()
+            and self.y <= pos_y <= self.y + self.texts[self.highlight].get_height()
+        ):
             self.highlight = True
         else:
             self.highlight = False
@@ -67,13 +76,17 @@ class Info:
         display.blit(self.getText(), (self.x + offsetx, self.y + offsety))
 
     def check_highlight(self, pos_x, pos_y):
-        if self.x <= pos_x <= self.x + self.getText().get_width() and self.y <= pos_y <= self.y + self.getText().get_height():
+        if (
+            self.x <= pos_x <= self.x + self.getText().get_width()
+            and self.y <= pos_y <= self.y + self.getText().get_height()
+        ):
             self.highlight = True
         else:
             self.highlight = False
 
     def on_click(self):
         return
+
 
 class Menu:
     def __init__(self, buttons, offsetx, offsety):
@@ -108,7 +121,10 @@ class Cursor:
         return
 
     def process_down(self):
-        self.carry, self.gameField.field[self.celly][self.cellx] = self.gameField.field[self.celly][self.cellx], self.carry
+        self.carry, self.gameField.field[self.celly][self.cellx] = (
+            self.gameField.field[self.celly][self.cellx],
+            self.carry,
+        )
 
     def update_coords(self):
         self.x, self.y = pygame.mouse.get_pos()

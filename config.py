@@ -1,43 +1,44 @@
-from multiprocessing.connection import deliver_challenge
-import pygame
-from pygame.locals import *
-import checker.new_check as checker
 import time
 
+import pygame
+from pygame.locals import QUIT
+
+import checker.new_check as checker
+
 alph = [
-        ('а', 8.01),
-        ('б', 1.59),
-        ('в', 4.54),
-        ('г', 1.7),
-        ('д', 2.98),
-        ('е', 8.45),
-        ('ё', 0.04),
-        ('ж', 0.94),
-        ('з', 1.65),
-        ('и', 7.35),
-        ('й', 1.21),
-        ('к', 3.49),
-        ('л', 4.4),
-        ('м', 3.21),
-        ('н', 6.7),
-        ('о', 10.97),
-        ('п', 2.81),
-        ('р', 4.73),
-        ('с', 5.47),
-        ('т', 6.26),
-        ('у', 2.62),
-        ('ф', 0.26),
-        ('х', 0.97),
-        ('ц', 0.48),
-        ('ч', 1.44),
-        ('ш', 0.73),
-        ('щ', 0.36),
-        ('ъ', 0.04),
-        ('ы', 1.9),
-        ('ь', 1.74),
-        ('э', 0.32),
-        ('ю', 0.64),
-        ('я', 2.01)
+    ('а', 8.01),
+    ('б', 1.59),
+    ('в', 4.54),
+    ('г', 1.7),
+    ('д', 2.98),
+    ('е', 8.45),
+    ('ё', 0.04),
+    ('ж', 0.94),
+    ('з', 1.65),
+    ('и', 7.35),
+    ('й', 1.21),
+    ('к', 3.49),
+    ('л', 4.4),
+    ('м', 3.21),
+    ('н', 6.7),
+    ('о', 10.97),
+    ('п', 2.81),
+    ('р', 4.73),
+    ('с', 5.47),
+    ('т', 6.26),
+    ('у', 2.62),
+    ('ф', 0.26),
+    ('х', 0.97),
+    ('ц', 0.48),
+    ('ч', 1.44),
+    ('ш', 0.73),
+    ('щ', 0.36),
+    ('ъ', 0.04),
+    ('ы', 1.9),
+    ('ь', 1.74),
+    ('э', 0.32),
+    ('ю', 0.64),
+    ('я', 2.01),
 ]
 
 cons = {
@@ -73,7 +74,7 @@ cons = {
     'ь': 2,
     'э': 0,
     'ю': 0,
-    'я': 0
+    'я': 0,
 }
 
 minv = 6
@@ -119,15 +120,18 @@ t1 = 0
 
 deliverEvents = dict()
 
+
 def registerForEvent(type, function, checker=lambda event: True):
     global deliverEvents
     if type not in deliverEvents:
         deliverEvents[type] = []
     deliverEvents[type].append((checker, function))
 
+
 def clearRegisteredEvents():
     global deliverEvents
     deliverEvents.clear()
+
 
 def tech_pygame():
     global deliverEvents
