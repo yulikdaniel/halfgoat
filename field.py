@@ -169,7 +169,6 @@ def count_score(field):
 
     used = [[False for x in range(WIDTH)] for y in range(HEIGHT)]
 
-
     def dfs(x, y, used, s, xf, yf):
         ring_score = 0
         used[y][x] = True
