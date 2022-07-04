@@ -5,7 +5,7 @@ from field import *
 
 
 class Tick:
-    def __init__(self, text, effect, x0=lambda:0, y0=lambda:0, state=False):
+    def __init__(self, text, effect, x0=lambda: 0, y0=lambda: 0, state=False):
         self.text = text
         self.effect = effect
         self.state = state
@@ -16,20 +16,41 @@ class Tick:
     def draw(self, offsetx, offsety):
         offsetx += self.x()
         offsety += self.y()
-        pygame.draw.rect(display, GREY, (offsetx, offsety - 0.2 * CONSTANTS.BH, CONSTANTS.BW, CONSTANTS.BH), width=3)
+        pygame.draw.rect(
+            display,
+            config.colours.colours_list['grey'],
+            (offsetx, offsety - 0.2 * CONSTANTS.BH, CONSTANTS.BW, CONSTANTS.BH),
+            width=3,
+        )
         if self.highlight:
-            pygame.draw.rect(display, HIGHLIGHT_COLOUR, (offsetx, offsety - 0.2 * CONSTANTS.BH, CONSTANTS.BW, CONSTANTS.BH), width=0)
+            pygame.draw.rect(
+                display,
+                config.colours.highlight_colour,
+                (offsetx, offsety - 0.2 * CONSTANTS.BH, CONSTANTS.BW, CONSTANTS.BH),
+                width=0,
+            )
         if self.state:
             pygame.draw.line(
-                display, BLACK, (offsetx + 0.2 * CONSTANTS.BW, offsety + 0.1 * CONSTANTS.BH), (offsetx + CONSTANTS.BW / 2, offsety + CONSTANTS.BH * 0.7), width=4
+                display,
+                BLACK,
+                (offsetx + 0.2 * CONSTANTS.BW, offsety + 0.1 * CONSTANTS.BH),
+                (offsetx + CONSTANTS.BW / 2, offsety + CONSTANTS.BH * 0.7),
+                width=4,
             )
             pygame.draw.line(
-                display, BLACK, (offsetx + CONSTANTS.BW / 2, offsety + CONSTANTS.BH * 0.7), (offsetx + CONSTANTS.BW * 0.8, offsety), width=4
+                display,
+                BLACK,
+                (offsetx + CONSTANTS.BW / 2, offsety + CONSTANTS.BH * 0.7),
+                (offsetx + CONSTANTS.BW * 0.8, offsety),
+                width=4,
             )
         display.blit(CONSTANTS.font.render(self.text, True, BLACK), (offsetx + CONSTANTS.BW * 1.2, offsety))
 
     def check_highlight(self, pos_x, pos_y):
-        if self.x() <= pos_x <= self.x() + CONSTANTS.BW and self.y() <= pos_y + 0.2 * CONSTANTS.BH <= self.y() + CONSTANTS.BH:
+        if (
+            self.x() <= pos_x <= self.x() + CONSTANTS.BW
+            and self.y() <= pos_y + 0.2 * CONSTANTS.BH <= self.y() + CONSTANTS.BH
+        ):
             self.highlight = True
         else:
             self.highlight = False
@@ -40,13 +61,16 @@ class Tick:
 
 
 class Button:
-    def __init__(self, text, effect, x0=lambda:0, y0=lambda:0):
+    def __init__(self, text, effect, x0=lambda: 0, y0=lambda: 0):
         self.text = text
         self.effect = effect
         self.highlight = False
         self.y = y0
         self.x = x0
-        self.texts = [lambda: CONSTANTS.font.render(self.text, True, BLACK), lambda: CONSTANTS.font.render(self.text, True, TEXT_HIGHLIGHT_COLOUR)]
+        self.texts = [
+            lambda: CONSTANTS.font.render(self.text, True, config.colours.colours_list["black"]),
+            lambda: CONSTANTS.font.render(self.text, True, config.colours.text_highlight_colour),
+        ]
 
     def draw(self, offsetx, offsety):
         display.blit(self.texts[self.highlight](), (self.x() + offsetx, self.y() + offsety))
@@ -66,11 +90,13 @@ class Button:
 
 
 class Info:
-    def __init__(self, getText, x0=lambda:0, y0=lambda:0):
+    def __init__(self, getText, x0=lambda: 0, y0=lambda: 0):
         self.highlight = False
         self.y = y0
         self.x = x0
-        self.getText = lambda: CONSTANTS.font.render(getText if isinstance(getText, str) else getText(), True, BLACK)
+        self.getText = lambda: CONSTANTS.font.render(
+            getText if isinstance(getText, str) else getText(), True, config.colours.colours_list["black"]
+        )
 
     def draw(self, offsetx, offsety):
         display.blit(self.getText(), (self.x() + offsetx, self.y() + offsety))
@@ -128,11 +154,16 @@ class Cursor:
 
     def update_coords(self):
         self.x, self.y = pygame.mouse.get_pos()
-        self.cellx, self.celly = min(CONSTANTS.WIDTH - 1, self.x // CONSTANTS.BW), min(CONSTANTS.HEIGHT - 1, self.y // CONSTANTS.BH)
+        self.cellx, self.celly = min(CONSTANTS.WIDTH - 1, self.x // CONSTANTS.BW), min(
+            CONSTANTS.HEIGHT - 1, self.y // CONSTANTS.BH
+        )
 
     def highlight(self):
-        draw_square(HIGHLIGHT_COLOUR, self.cellx, self.celly)
+        draw_square(config.colours.highlight_colour, self.cellx, self.celly)
 
     def draw_carry(self):
         if self.carry:
-            display.blit(CONSTANTS.font.render(self.carry, True, BLACK), ((self.cellx + 0.1) * CONSTANTS.BW, (self.celly - 0.1) * CONSTANTS.BH))
+            display.blit(
+                CONSTANTS.font.render(self.carry, True, BLACK),
+                ((self.cellx + 0.1) * CONSTANTS.BW, (self.celly - 0.1) * CONSTANTS.BH),
+            )

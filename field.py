@@ -2,20 +2,8 @@ import random
 
 import pygame
 
-from config import (
-    CONSTANTS,
-    BLACK,
-    GREY,
-    HIGHLIGHT_CORRECT,
-    HIGHLIGHT_WRONG,
-    WHITE,
-    alph,
-    checker,
-    cons,
-    display,
-    minc,
-    minv,
-)
+import checker.new_check as checker
+from config import CONSTANTS, config, display
 
 
 def draw_square_pos(col, x, y, xsz=CONSTANTS.BW, ysz=CONSTANTS.BH, width=0):
@@ -23,15 +11,17 @@ def draw_square_pos(col, x, y, xsz=CONSTANTS.BW, ysz=CONSTANTS.BH, width=0):
 
 
 def draw_square(col, x, y, width=0):
-    pygame.draw.rect(display, col, (x * CONSTANTS.BW + 3, y * CONSTANTS.BH + 3, CONSTANTS.BW - 6, CONSTANTS.BH - 6), width=width)
+    pygame.draw.rect(
+        display, col, (x * CONSTANTS.BW + 3, y * CONSTANTS.BH + 3, CONSTANTS.BW - 6, CONSTANTS.BH - 6), width=width
+    )
 
 
 def draw_blank():
-    display.fill(WHITE)
+    display.fill(config.colours.colours_list["white"])
     for x in range(0, CONSTANTS.A + 1, CONSTANTS.BW):
-        pygame.draw.line(display, GREY, (x, 0), (x, CONSTANTS.B))
+        pygame.draw.line(display, config.colours.colours_list["grey"], (x, 0), (x, CONSTANTS.B))
     for y in range(0, CONSTANTS.B + 1, CONSTANTS.BH):
-        pygame.draw.line(display, GREY, (0, y), (CONSTANTS.A, y))
+        pygame.draw.line(display, config.colours.colours_list["grey"], (0, y), (CONSTANTS.A, y))
 
 
 def inField(x, y):
@@ -41,25 +31,17 @@ def inField(x, y):
 def generate_letters(seed=None):
     if seed is not None:
         random.seed(seed)
-    letters = []
-    sm = sum([x[1] for x in alph])
-    while not letters:
-        numc = 0
-        numv = 0
-        for x in range(20):
-            t = random.random() * sm
-            for let, pr in alph:
-                if t < pr:
-                    letters.append(let)
-                    break
-                t -= pr
-            if cons[letters[-1]] == 0:
-                numv += 1
-            if cons[letters[-1]] == 1:
-                numc += 1
-        if numc < minc or numv < minv:
-            letters = []
-    return letters
+    while True:
+        letters = random.choices(
+            population=list(config.letters.probability.keys()),
+            weights=list(config.letters.probability.values()),
+            k=20,
+        )
+        if sum(1 for let in letters if let in config.letters.vowels) < config.letters.min_vowel_amt:
+            continue
+        if sum(1 for let in letters if let in config.letters.consonants) < config.letters.min_consonant_amt:
+            continue
+        return letters
 
 
 class Field:
@@ -81,11 +63,18 @@ class Field:
         for x in range(CONSTANTS.WIDTH):
             for y in range(CONSTANTS.HEIGHT):
                 if self.field[y][x]:
-                    display.blit(CONSTANTS.font.render(self.field[y][x], True, BLACK), ((x + 0.2) * CONSTANTS.BW, (y + 0.1) * CONSTANTS.BH))
+                    display.blit(
+                        CONSTANTS.font.render(self.field[y][x], True, config.colours.colours_list["black"]),
+                        ((x + 0.2) * CONSTANTS.BW, (y + 0.1) * CONSTANTS.BH),
+                    )
         if self.scorecount:
-            display.blit(CONSTANTS.font.render("SCORE: ", True, BLACK), ((CONSTANTS.WIDTH + 3) * CONSTANTS.BW, CONSTANTS.BH))
             display.blit(
-                CONSTANTS.font.render(str(count_score(self)), True, BLACK), ((CONSTANTS.WIDTH + 3) * CONSTANTS.BW + CONSTANTS.font.size("SCORE: ")[0], CONSTANTS.BH)
+                CONSTANTS.font.render("SCORE: ", True, config.colours.colours_list["black"]),
+                ((CONSTANTS.WIDTH + 3) * CONSTANTS.BW, CONSTANTS.BH),
+            )
+            display.blit(
+                CONSTANTS.font.render(str(count_score(self)), True, config.colours.colours_list["black"]),
+                ((CONSTANTS.WIDTH + 3) * CONSTANTS.BW + CONSTANTS.font.size("SCORE: ")[0], CONSTANTS.BH),
             )
 
     def highlight_correct(self):
@@ -120,9 +109,9 @@ class Field:
                 word += self.field[y][x]
 
         if checker.check_word(word):
-            col = HIGHLIGHT_CORRECT
+            col = config.colours.highlight_correct
         else:
-            col = HIGHLIGHT_WRONG
+            col = config.colours.highlight_wrong
 
         for x in range(sx, sx + 1 + (not vertical) * (cur - 1)):
             for y in range(sy, sy + 1 + vertical * (cur - 1)):
