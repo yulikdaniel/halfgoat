@@ -3,45 +3,39 @@ import random
 import pygame
 
 from config import (
-    BH,
+    CONSTANTS,
     BLACK,
-    BW,
     GREY,
-    HEIGHT,
     HIGHLIGHT_CORRECT,
     HIGHLIGHT_WRONG,
     WHITE,
-    WIDTH,
-    A,
-    B,
     alph,
     checker,
     cons,
     display,
-    font,
     minc,
     minv,
 )
 
 
-def draw_square_pos(col, x, y, xsz=BW, ysz=BH, width=0):
+def draw_square_pos(col, x, y, xsz=CONSTANTS.BW, ysz=CONSTANTS.BH, width=0):
     pygame.draw.rect(display, col, (x, y, xsz, ysz), width=width)
 
 
 def draw_square(col, x, y, width=0):
-    pygame.draw.rect(display, col, (x * BW + 3, y * BH + 3, BW - 6, BH - 6), width=width)
+    pygame.draw.rect(display, col, (x * CONSTANTS.BW + 3, y * CONSTANTS.BH + 3, CONSTANTS.BW - 6, CONSTANTS.BH - 6), width=width)
 
 
 def draw_blank():
     display.fill(WHITE)
-    for x in range(0, A + 1, BW):
-        pygame.draw.line(display, GREY, (x, 0), (x, A))
-    for y in range(0, B + 1, BH):
-        pygame.draw.line(display, GREY, (0, y), (B, y))
+    for x in range(0, CONSTANTS.A + 1, CONSTANTS.BW):
+        pygame.draw.line(display, GREY, (x, 0), (x, CONSTANTS.B))
+    for y in range(0, CONSTANTS.B + 1, CONSTANTS.BH):
+        pygame.draw.line(display, GREY, (0, y), (CONSTANTS.A, y))
 
 
 def inField(x, y):
-    return x >= 0 and y >= 0 and x < WIDTH and y < HEIGHT
+    return x >= 0 and y >= 0 and x < CONSTANTS.WIDTH and y < CONSTANTS.HEIGHT
 
 
 def generate_letters(seed=None):
@@ -70,7 +64,7 @@ def generate_letters(seed=None):
 
 class Field:
     def __init__(self, letters):
-        self.field = [['' for x in range(WIDTH)] for y in range(HEIGHT)]
+        self.field = [['' for x in range(CONSTANTS.WIDTH)] for y in range(CONSTANTS.HEIGHT)]
         self.spellcheck = True
         self.scorecount = True
         self.highlight = None
@@ -79,25 +73,25 @@ class Field:
 
     def draw(self):
         draw_blank()
-        self.highlight = [[set() for x in range(WIDTH)] for y in range(HEIGHT)]
+        self.highlight = [[set() for x in range(CONSTANTS.WIDTH)] for y in range(CONSTANTS.HEIGHT)]
         if self.spellcheck:
             self.highlight_correct()
         self.draw_highlight()
         self.cursor.highlight()
-        for x in range(WIDTH):
-            for y in range(HEIGHT):
+        for x in range(CONSTANTS.WIDTH):
+            for y in range(CONSTANTS.HEIGHT):
                 if self.field[y][x]:
-                    display.blit(font.render(self.field[y][x], True, BLACK), (x * BW + 12, y * BW + 4))
+                    display.blit(CONSTANTS.font.render(self.field[y][x], True, BLACK), ((x + 0.2) * CONSTANTS.BW, (y + 0.1) * CONSTANTS.BH))
         if self.scorecount:
-            display.blit(font.render("SCORE: ", True, BLACK), ((WIDTH + 3) * BW, BH))
+            display.blit(CONSTANTS.font.render("SCORE: ", True, BLACK), ((CONSTANTS.WIDTH + 3) * CONSTANTS.BW, CONSTANTS.BH))
             display.blit(
-                font.render(str(count_score(self)), True, BLACK), ((WIDTH + 3) * BW + font.size("SCORE: ")[0], BH)
+                CONSTANTS.font.render(str(count_score(self)), True, BLACK), ((CONSTANTS.WIDTH + 3) * CONSTANTS.BW + CONSTANTS.font.size("SCORE: ")[0], CONSTANTS.BH)
             )
 
     def highlight_correct(self):
-        for x in range(WIDTH):
+        for x in range(CONSTANTS.WIDTH):
             cur = 0
-            for y in range(HEIGHT):
+            for y in range(CONSTANTS.HEIGHT):
                 if self.field[y][x]:
                     cur += 1
                 else:
@@ -107,9 +101,9 @@ class Field:
             if cur > 1:
                 self.highlight_word(x, y - cur + 1, cur, True)
 
-        for y in range(HEIGHT):
+        for y in range(CONSTANTS.HEIGHT):
             cur = 0
-            for x in range(WIDTH):
+            for x in range(CONSTANTS.WIDTH):
                 if self.field[y][x]:
                     cur += 1
                 else:
@@ -135,8 +129,8 @@ class Field:
                 self.highlight[y][x].add(col)
 
     def draw_highlight(self):
-        for x in range(WIDTH):
-            for y in range(HEIGHT):
+        for x in range(CONSTANTS.WIDTH):
+            for y in range(CONSTANTS.HEIGHT):
                 if len(self.highlight[y][x]) == 0:
                     continue
                 res = [0, 0, 0]
@@ -150,30 +144,30 @@ class Field:
 
 def count_score(field):
     score = 0
-    for x in range(WIDTH):
+    for x in range(CONSTANTS.WIDTH):
         curl = 0
-        for y in range(HEIGHT):
+        for y in range(CONSTANTS.HEIGHT):
             if field.field[y][x]:
                 curl += 1
                 score += max(0, (curl - 4) // 2)
             else:
                 curl = 0
-    for y in range(HEIGHT):
+    for y in range(CONSTANTS.HEIGHT):
         curl = 0
-        for x in range(WIDTH):
+        for x in range(CONSTANTS.WIDTH):
             if field.field[y][x]:
                 curl += 1
                 score += max(0, (curl - 4) // 2)
             else:
                 curl = 0
 
-    used = [[False for x in range(WIDTH)] for y in range(HEIGHT)]
+    used = [[False for x in range(CONSTANTS.WIDTH)] for y in range(CONSTANTS.HEIGHT)]
 
     def dfs(x, y, used, s, xf, yf):
         ring_score = 0
         used[y][x] = True
         for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-            if 0 <= x + dx < WIDTH and 0 <= y + dy < HEIGHT and field.field[y + dy][x + dx]:
+            if 0 <= x + dx < CONSTANTS.WIDTH and 0 <= y + dy < CONSTANTS.HEIGHT and field.field[y + dy][x + dx]:
                 if used[y + dy][x + dx]:
                     if (xf, yf) != (x + dx, y + dy):
                         ring_score += 1
@@ -183,8 +177,8 @@ def count_score(field):
         return ring_score
 
     numc = 0
-    for y in range(HEIGHT):
-        for x in range(WIDTH):
+    for y in range(CONSTANTS.HEIGHT):
+        for x in range(CONSTANTS.WIDTH):
             if field.field[y][x] and not used[y][x]:
                 s = set()
                 ring = dfs(x, y, used, s, -1, -1)

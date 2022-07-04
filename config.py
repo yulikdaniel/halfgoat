@@ -80,25 +80,6 @@ cons = {
 minv = 6
 minc = 10
 
-SEED = 1543
-BW, BH = 50, 50
-WIDTH, HEIGHT = 20, 20
-A, B = WIDTH * BW, HEIGHT * BH
-MENUWIDTH = 800
-
-checker.build()
-
-iconImg = pygame.image.load("pics/Icon.png")
-
-pygame.init()
-pygame.display.set_icon(iconImg)
-pygame.display.set_caption("Semigoat")
-font = pygame.font.SysFont("comicsansms", 50)
-display = pygame.display.set_mode((A + MENUWIDTH, B))
-clock = pygame.time.Clock()
-
-FPS = 60
-
 LIGHT_YELLOW = (255, 255, 153)
 LIGHT_RED = (255, 153, 153)
 LIGHT_GREEN = (150, 250, 150)
@@ -114,6 +95,46 @@ TEXT_HIGHLIGHT_COLOUR = LIGHT_GREEN
 HIGHLIGHT_COLOUR = LIGHT_YELLOW
 HIGHLIGHT_CORRECT = LIGHT_GREEN
 HIGHLIGHT_WRONG = LIGHT_RED
+
+class SizeConstants:
+    def __init__(self):
+        self.fullscreen = True
+        self.update()
+    
+    def update_font_size(self):
+        self.font_size = -1
+        for i in range(100):
+            let_size = pygame.font.SysFont("comicsansms", i).size("А")
+            if let_size[1] > 0.8 * self.BH or let_size[0] > 0.8 * self.BW:
+                self.font_size = i - 1
+                break
+        self.font = pygame.font.SysFont("comicsansms", self.font_size)
+
+    def update(self):
+        self.WIDTH = 20
+        self.HEIGHT = 20
+        info = pygame.display.Info()
+        self.A = min(info.current_h, info.current_w)
+        self.B = self.A
+        self.A -= self.A % self.WIDTH
+        self.B -= self.B % self.HEIGHT
+        self.BW = self.A // self.WIDTH
+        self.BH = self.B // self.HEIGHT
+        self.MENUWIDTH = info.current_w - self.B
+        self.update_font_size()
+
+checker.build()
+
+iconImg = pygame.image.load("pics/Icon.png")
+
+pygame.init()
+pygame.display.set_icon(iconImg)
+pygame.display.set_caption("Semigoat")
+display = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+CONSTANTS = SizeConstants()
+clock = pygame.time.Clock()
+
+FPS = 60
 
 COLOURS = [GREEN, RED, BLUE, ORANGE]
 t1 = 0

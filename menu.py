@@ -16,20 +16,20 @@ class Tick:
     def draw(self, offsetx, offsety):
         offsetx += self.x
         offsety += self.y
-        draw_square_pos(GREY, offsetx, offsety - 10, width=3)
+        draw_square_pos(GREY, offsetx, offsety - 0.2 * CONSTANTS.BH, width=3)
         if self.highlight:
-            draw_square_pos(HIGHLIGHT_COLOUR, offsetx, offsety - 10)
+            draw_square_pos(HIGHLIGHT_COLOUR, offsetx, offsety - 0.2 * CONSTANTS.BH)
         if self.state:
             pygame.draw.line(
-                display, BLACK, (offsetx + 10, offsety + 5), (offsetx + BW // 2, offsety + BH - 20), width=4
+                display, BLACK, (offsetx + 0.2 * CONSTANTS.BW, offsety + 0.1 * CONSTANTS.BH), (offsetx + CONSTANTS.BW / 2, offsety + CONSTANTS.BH * 0.7), width=4
             )
             pygame.draw.line(
-                display, BLACK, (offsetx + BW // 2, offsety + BH - 20), (offsetx + BW - 10, offsety - 3), width=4
+                display, BLACK, (offsetx + CONSTANTS.BW / 2, offsety + CONSTANTS.BH * 0.7), (offsetx + CONSTANTS.BW * 0.8, offsety), width=4
             )
-        display.blit(font.render(self.text, True, BLACK), (offsetx + BW + 10, offsety))
+        display.blit(CONSTANTS.font.render(self.text, True, BLACK), (offsetx + CONSTANTS.BW * 1.2, offsety))
 
     def check_highlight(self, pos_x, pos_y):
-        if self.x <= pos_x <= self.x + BW and self.y <= pos_y + 10 <= self.y + BH:
+        if self.x <= pos_x <= self.x + CONSTANTS.BW and self.y <= pos_y + 0.2 * CONSTANTS.BH <= self.y + CONSTANTS.BH:
             self.highlight = True
         else:
             self.highlight = False
@@ -46,7 +46,7 @@ class Button:
         self.highlight = False
         self.y = y0
         self.x = x0
-        self.texts = [font.render(self.text, True, BLACK), font.render(self.text, True, TEXT_HIGHLIGHT_COLOUR)]
+        self.texts = [CONSTANTS.font.render(self.text, True, BLACK), CONSTANTS.font.render(self.text, True, TEXT_HIGHLIGHT_COLOUR)]
 
     def draw(self, offsetx, offsety):
         display.blit(self.texts[self.highlight], (self.x + offsetx, self.y + offsety))
@@ -70,7 +70,7 @@ class Info:
         self.highlight = False
         self.y = y0
         self.x = x0
-        self.getText = lambda: font.render(getText if isinstance(getText, str) else getText(), True, BLACK)
+        self.getText = lambda: CONSTANTS.font.render(getText if isinstance(getText, str) else getText(), True, BLACK)
 
     def draw(self, offsetx, offsety):
         display.blit(self.getText(), (self.x + offsetx, self.y + offsety))
@@ -128,11 +128,11 @@ class Cursor:
 
     def update_coords(self):
         self.x, self.y = pygame.mouse.get_pos()
-        self.cellx, self.celly = min(WIDTH - 1, self.x // BW), min(HEIGHT - 1, self.y // BH)
+        self.cellx, self.celly = min(CONSTANTS.WIDTH - 1, self.x // CONSTANTS.BW), min(CONSTANTS.HEIGHT - 1, self.y // CONSTANTS.BH)
 
     def highlight(self):
         draw_square(HIGHLIGHT_COLOUR, self.cellx, self.celly)
 
     def draw_carry(self):
         if self.carry:
-            display.blit(font.render(self.carry, True, BLACK), (self.cellx * BW + 10, self.celly * BW - 8))
+            display.blit(CONSTANTS.font.render(self.carry, True, BLACK), ((self.cellx + 0.1) * CONSTANTS.BW, (self.celly - 0.1) * CONSTANTS.BH))

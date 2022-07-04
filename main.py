@@ -11,7 +11,7 @@ def launch_game(SEED):
     gameField = Field(generate_letters(SEED))
     cursor = Cursor(gameField)
     gameField.cursor = cursor
-    ITEM_HEIGHT = BH
+    ITEM_HEIGHT = CONSTANTS.BH
     menu = Menu(
         [
             Tick("Spellcheck", lambda instance: toggle_spellcheck(gameField, instance), y0=0, state=True),
@@ -21,7 +21,7 @@ def launch_game(SEED):
             Button("Checkpoint 2", lambda instance: switch_checkpoint(gameField, 1, instance), y0=4 * ITEM_HEIGHT),
             Button("Checkpoint 3", lambda instance: switch_checkpoint(gameField, 2, instance), y0=5 * ITEM_HEIGHT),
         ],
-        A + 100,
+        CONSTANTS.A + 100,
         200,
     )
 
@@ -51,13 +51,13 @@ def start_menu():
             SEED = 10 * SEED + symbol
 
     clearRegisteredEvents()
-    ITEM_HEIGHT = BH
+    ITEM_HEIGHT = CONSTANTS.BH
     menu = Menu(
         [
             Info(lambda: "Enter seed: {}".format(SEED if SEED else "random"), y0=ITEM_HEIGHT),
             Button(
                 "Launch game",
-                lambda: launch_game(random.randint(0, 10**9) if SEED == 0 else SEED),
+                lambda instance: launch_game(random.randint(0, 10**9) if SEED == 0 else SEED),
                 y0=2 * ITEM_HEIGHT,
             ),
         ],
