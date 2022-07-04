@@ -8,21 +8,21 @@ from menu import *
 
 def launch_game(SEED):
     clearRegisteredEvents()
+    register_general_events()
     gameField = Field(generate_letters(SEED))
     cursor = Cursor(gameField)
     gameField.cursor = cursor
-    ITEM_HEIGHT = CONSTANTS.BH
     menu = Menu(
         [
-            Tick("Spellcheck", lambda instance: toggle_spellcheck(gameField, instance), y0=0, state=True),
-            Tick("Score Count", lambda instance: toggle_scorecount(gameField, instance), y0=ITEM_HEIGHT, state=True),
-            Info(lambda: "Current checkpoint: {}".format(current_checkpoint() + 1), y0=2 * ITEM_HEIGHT),
-            Button("Checkpoint 1", lambda instance: switch_checkpoint(gameField, 0, instance), y0=3 * ITEM_HEIGHT),
-            Button("Checkpoint 2", lambda instance: switch_checkpoint(gameField, 1, instance), y0=4 * ITEM_HEIGHT),
-            Button("Checkpoint 3", lambda instance: switch_checkpoint(gameField, 2, instance), y0=5 * ITEM_HEIGHT),
+            Tick("Spellcheck", lambda instance: toggle_spellcheck(gameField, instance), y0=lambda:0, state=True),
+            Tick("Score Count", lambda instance: toggle_scorecount(gameField, instance), y0=lambda:CONSTANTS.BH, state=True),
+            Info(lambda: "Current checkpoint: {}".format(current_checkpoint() + 1), y0=lambda:2 * CONSTANTS.BH),
+            Button("Checkpoint 1", lambda instance: switch_checkpoint(gameField, 0, instance), y0=lambda:3 * CONSTANTS.BH),
+            Button("Checkpoint 2", lambda instance: switch_checkpoint(gameField, 1, instance), y0=lambda:4 * CONSTANTS.BH),
+            Button("Checkpoint 3", lambda instance: switch_checkpoint(gameField, 2, instance), y0=lambda:5 * CONSTANTS.BH),
         ],
-        CONSTANTS.A + 100,
-        200,
+        lambda:CONSTANTS.A + CONSTANTS.BH * 2,
+        lambda:200 + CONSTANTS.BW * 2,
     )
 
     registerForEvent(MOUSEBUTTONUP, cursor.process_up)
@@ -51,18 +51,18 @@ def start_menu():
             SEED = 10 * SEED + symbol
 
     clearRegisteredEvents()
-    ITEM_HEIGHT = CONSTANTS.BH
+    register_general_events()
     menu = Menu(
         [
-            Info(lambda: "Enter seed: {}".format(SEED if SEED else "random"), y0=ITEM_HEIGHT),
+            Info(lambda: "Enter seed: {}".format(SEED if SEED else "random"), y0=lambda:CONSTANTS.BH),
             Button(
                 "Launch game",
                 lambda instance: launch_game(random.randint(0, 10**9) if SEED == 0 else SEED),
-                y0=2 * ITEM_HEIGHT,
+                y0=lambda:2 * CONSTANTS.BH,
             ),
         ],
-        0,
-        0,
+        lambda:0,
+        lambda:0,
     )
     for i in range(10):
         registerForEvent(KEYDOWN, lambda i=i: func(i), lambda event, i=i: event.unicode == str(i))

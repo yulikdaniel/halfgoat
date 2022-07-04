@@ -5,7 +5,7 @@ from field import *
 
 
 class Tick:
-    def __init__(self, text, effect, x0=0, y0=0, state=False):
+    def __init__(self, text, effect, x0=lambda:0, y0=lambda:0, state=False):
         self.text = text
         self.effect = effect
         self.state = state
@@ -14,11 +14,11 @@ class Tick:
         self.x = x0
 
     def draw(self, offsetx, offsety):
-        offsetx += self.x
-        offsety += self.y
-        draw_square_pos(GREY, offsetx, offsety - 0.2 * CONSTANTS.BH, width=3)
+        offsetx += self.x()
+        offsety += self.y()
+        pygame.draw.rect(display, GREY, (offsetx, offsety - 0.2 * CONSTANTS.BH, CONSTANTS.BW, CONSTANTS.BH), width=3)
         if self.highlight:
-            draw_square_pos(HIGHLIGHT_COLOUR, offsetx, offsety - 0.2 * CONSTANTS.BH)
+            pygame.draw.rect(display, HIGHLIGHT_COLOUR, (offsetx, offsety - 0.2 * CONSTANTS.BH, CONSTANTS.BW, CONSTANTS.BH), width=0)
         if self.state:
             pygame.draw.line(
                 display, BLACK, (offsetx + 0.2 * CONSTANTS.BW, offsety + 0.1 * CONSTANTS.BH), (offsetx + CONSTANTS.BW / 2, offsety + CONSTANTS.BH * 0.7), width=4
@@ -29,7 +29,7 @@ class Tick:
         display.blit(CONSTANTS.font.render(self.text, True, BLACK), (offsetx + CONSTANTS.BW * 1.2, offsety))
 
     def check_highlight(self, pos_x, pos_y):
-        if self.x <= pos_x <= self.x + CONSTANTS.BW and self.y <= pos_y + 0.2 * CONSTANTS.BH <= self.y + CONSTANTS.BH:
+        if self.x() <= pos_x <= self.x() + CONSTANTS.BW and self.y() <= pos_y + 0.2 * CONSTANTS.BH <= self.y() + CONSTANTS.BH:
             self.highlight = True
         else:
             self.highlight = False
@@ -40,21 +40,21 @@ class Tick:
 
 
 class Button:
-    def __init__(self, text, effect, x0=0, y0=0):
+    def __init__(self, text, effect, x0=lambda:0, y0=lambda:0):
         self.text = text
         self.effect = effect
         self.highlight = False
         self.y = y0
         self.x = x0
-        self.texts = [CONSTANTS.font.render(self.text, True, BLACK), CONSTANTS.font.render(self.text, True, TEXT_HIGHLIGHT_COLOUR)]
+        self.texts = [lambda: CONSTANTS.font.render(self.text, True, BLACK), lambda: CONSTANTS.font.render(self.text, True, TEXT_HIGHLIGHT_COLOUR)]
 
     def draw(self, offsetx, offsety):
-        display.blit(self.texts[self.highlight], (self.x + offsetx, self.y + offsety))
+        display.blit(self.texts[self.highlight](), (self.x() + offsetx, self.y() + offsety))
 
     def check_highlight(self, pos_x, pos_y):
         if (
-            self.x <= pos_x <= self.x + self.texts[self.highlight].get_width()
-            and self.y <= pos_y <= self.y + self.texts[self.highlight].get_height()
+            self.x() <= pos_x <= self.x() + self.texts[self.highlight]().get_width()
+            and self.y() <= pos_y <= self.y() + self.texts[self.highlight]().get_height()
         ):
             self.highlight = True
         else:
@@ -66,19 +66,19 @@ class Button:
 
 
 class Info:
-    def __init__(self, getText, x0=0, y0=0):
+    def __init__(self, getText, x0=lambda:0, y0=lambda:0):
         self.highlight = False
         self.y = y0
         self.x = x0
         self.getText = lambda: CONSTANTS.font.render(getText if isinstance(getText, str) else getText(), True, BLACK)
 
     def draw(self, offsetx, offsety):
-        display.blit(self.getText(), (self.x + offsetx, self.y + offsety))
+        display.blit(self.getText(), (self.x() + offsetx, self.y() + offsety))
 
     def check_highlight(self, pos_x, pos_y):
         if (
-            self.x <= pos_x <= self.x + self.getText().get_width()
-            and self.y <= pos_y <= self.y + self.getText().get_height()
+            self.x() <= pos_x <= self.x() + self.getText().get_width()
+            and self.y() <= pos_y <= self.y() + self.getText().get_height()
         ):
             self.highlight = True
         else:
@@ -96,12 +96,12 @@ class Menu:
     def draw(self):
         self.highlight()
         for y in range(len(self.buttons)):
-            self.buttons[y].draw(self.offsetx, self.offsety)
+            self.buttons[y].draw(self.offsetx(), self.offsety())
 
     def highlight(self):
         x, y = pygame.mouse.get_pos()
         for button in self.buttons:
-            button.check_highlight(x - self.offsetx, y - self.offsety)
+            button.check_highlight(x - self.offsetx(), y - self.offsety())
 
     def on_click(self):
         for button in self.buttons:

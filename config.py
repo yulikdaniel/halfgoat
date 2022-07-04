@@ -77,6 +77,22 @@ cons = {
     'я': 0,
 }
 
+
+deliverEvents = dict()
+
+
+def registerForEvent(type, function, checker=lambda event: True):
+    global deliverEvents
+    if type not in deliverEvents:
+        deliverEvents[type] = []
+    deliverEvents[type].append((checker, function))
+
+
+def clearRegisteredEvents():
+    global deliverEvents
+    deliverEvents.clear()
+
+
 minv = 6
 minc = 10
 
@@ -98,7 +114,6 @@ HIGHLIGHT_WRONG = LIGHT_RED
 
 class SizeConstants:
     def __init__(self):
-        self.fullscreen = True
         self.update()
     
     def update_font_size(self):
@@ -130,7 +145,7 @@ iconImg = pygame.image.load("pics/Icon.png")
 pygame.init()
 pygame.display.set_icon(iconImg)
 pygame.display.set_caption("Semigoat")
-display = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+display = pygame.display.set_mode(flags=pygame.RESIZABLE)
 CONSTANTS = SizeConstants()
 clock = pygame.time.Clock()
 
@@ -139,19 +154,8 @@ FPS = 60
 COLOURS = [GREEN, RED, BLUE, ORANGE]
 t1 = 0
 
-deliverEvents = dict()
-
-
-def registerForEvent(type, function, checker=lambda event: True):
-    global deliverEvents
-    if type not in deliverEvents:
-        deliverEvents[type] = []
-    deliverEvents[type].append((checker, function))
-
-
-def clearRegisteredEvents():
-    global deliverEvents
-    deliverEvents.clear()
+def register_general_events():
+    registerForEvent(pygame.WINDOWRESIZED, lambda: CONSTANTS.update())
 
 
 def tech_pygame():
