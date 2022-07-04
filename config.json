@@ -1,7 +1,5 @@
 {
-    "display": {
-        "frames_per_second": 60
-    },
+    "frames_per_second": 60,
     "colours": {
         "colours_list": {
             "light_yellow": [255, 255, 153],
@@ -15,10 +13,15 @@
             "white": [255, 255, 255],
             "grey": [120, 120, 120]
         },
-        "text_highlight_colour": "light_green",
-        "highlight_colour": "light_yellow",
+        "text_highlight": "light_green",
+        "highlight": "light_yellow",
         "highlight_correct": "light_green",
-        "highlight_wrong": "light_red"
+        "highlight_wrong": "light_red",
+        "background": "white",
+        "tick_box": "grey",
+        "tick_mark": "black",
+        "text": "black",
+        "grid": "grey"
     },
     "letters": {
         "min_vowel_amt": 6,

@@ -17,11 +17,11 @@ def draw_square(col, x, y, width=0):
 
 
 def draw_blank():
-    display.fill(config.colours.colours_list["white"])
+    display.fill(config.colours.background)
     for x in range(0, CONSTANTS.A + 1, CONSTANTS.BW):
-        pygame.draw.line(display, config.colours.colours_list["grey"], (x, 0), (x, CONSTANTS.B))
+        pygame.draw.line(display, config.colours.grid, (x, 0), (x, CONSTANTS.B))
     for y in range(0, CONSTANTS.B + 1, CONSTANTS.BH):
-        pygame.draw.line(display, config.colours.colours_list["grey"], (0, y), (CONSTANTS.A, y))
+        pygame.draw.line(display, config.colours.grid, (0, y), (CONSTANTS.A, y))
 
 
 def inField(x, y):
@@ -64,16 +64,16 @@ class Field:
             for y in range(CONSTANTS.HEIGHT):
                 if self.field[y][x]:
                     display.blit(
-                        CONSTANTS.font.render(self.field[y][x], True, config.colours.colours_list["black"]),
+                        CONSTANTS.font.render(self.field[y][x], True, config.colours.text),
                         ((x + 0.2) * CONSTANTS.BW, (y + 0.1) * CONSTANTS.BH),
                     )
         if self.scorecount:
             display.blit(
-                CONSTANTS.font.render("SCORE: ", True, config.colours.colours_list["black"]),
+                CONSTANTS.font.render("SCORE: ", True, config.colours.text),
                 ((CONSTANTS.WIDTH + 3) * CONSTANTS.BW, CONSTANTS.BH),
             )
             display.blit(
-                CONSTANTS.font.render(str(count_score(self)), True, config.colours.colours_list["black"]),
+                CONSTANTS.font.render(str(count_score(self)), True, config.colours.text),
                 ((CONSTANTS.WIDTH + 3) * CONSTANTS.BW + CONSTANTS.font.size("SCORE: ")[0], CONSTANTS.BH),
             )
 

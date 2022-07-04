@@ -8,10 +8,6 @@ from pygame.locals import QUIT
 import checker.new_check as checker
 
 
-class DisplaySettings(BaseModel):
-    frames_per_second: int
-
-
 class LettersSettings(BaseModel):
     min_vowel_amt: int
     min_consonant_amt: int
@@ -27,12 +23,29 @@ class ColoursSettings(BaseModel):
         b: int
 
     colours_list: dict[str, Colour]
-    text_highlight_colour: Colour
-    highlight_colour: Colour
+
+    text_highlight: Colour
+    highlight: Colour
     highlight_correct: Colour
     highlight_wrong: Colour
+    background: Colour
+    tick_box: Colour
+    tick_mark: Colour
+    text: Colour
+    grid: Colour
 
-    @validator("text_highlight_colour", "highlight_colour", "highlight_correct", "highlight_wrong", pre=True)
+    @validator(
+        "text_highlight",
+        "highlight",
+        "highlight_correct",
+        "highlight_wrong",
+        "background",
+        "tick_box",
+        "tick_mark",
+        "text",
+        "grid",
+        pre=True,
+    )
     def validate_colour_name(cls, col_name, values):
         if "colours_list" in values and col_name not in values["colours_list"]:
             raise ValueError(f"colour {col_name} should be in colours list")
@@ -40,9 +53,9 @@ class ColoursSettings(BaseModel):
 
 
 class Config(BaseModel):
-    display: DisplaySettings
     letters: LettersSettings
     colours: ColoursSettings
+    frames_per_second: int
 
 
 config = Config.parse_file("config.json")
@@ -68,13 +81,10 @@ class SizeConstants:
         self.update()
 
     def update_font_size(self):
-        self.font_size = -1
-        for i in range(100):
-            let_size = pygame.font.SysFont("comicsansms", i).size("А")
-            if let_size[1] > 0.8 * self.BH or let_size[0] > 0.8 * self.BW:
-                self.font_size = i - 1
-                break
-        self.font = pygame.font.SysFont("comicsansms", self.font_size)
+        sample_size = 100
+        sample_let_size = pygame.font.SysFont("comicsansms", sample_size).size("A")
+        font_size = self.BH / sample_let_size[1] * 0.8 * sample_size
+        self.font = pygame.font.SysFont("comicsansms", int(font_size))
 
     def update(self):
         self.WIDTH = 20
@@ -112,8 +122,8 @@ def tech_pygame():
     global deliverEvents
     global t1
     pygame.display.update()
-    display.fill(config.colours.colours_list["white"])
-    clock.tick(config.display.frames_per_second)
+    display.fill(config.colours.background)
+    clock.tick(config.frames_per_second)
     t1 = time.time()
     for event in pygame.event.get():
         if event.type == QUIT:

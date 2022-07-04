@@ -18,33 +18,35 @@ class Tick:
         offsety += self.y()
         pygame.draw.rect(
             display,
-            config.colours.colours_list['grey'],
+            config.colours.tick_box,
             (offsetx, offsety - 0.2 * CONSTANTS.BH, CONSTANTS.BW, CONSTANTS.BH),
             width=3,
         )
         if self.highlight:
             pygame.draw.rect(
                 display,
-                config.colours.highlight_colour,
+                config.colours.highlight,
                 (offsetx, offsety - 0.2 * CONSTANTS.BH, CONSTANTS.BW, CONSTANTS.BH),
                 width=0,
             )
         if self.state:
             pygame.draw.line(
                 display,
-                BLACK,
+                config.colours.tick_mark,
                 (offsetx + 0.2 * CONSTANTS.BW, offsety + 0.1 * CONSTANTS.BH),
                 (offsetx + CONSTANTS.BW / 2, offsety + CONSTANTS.BH * 0.7),
                 width=4,
             )
             pygame.draw.line(
                 display,
-                BLACK,
+                config.colours.tick_mark,
                 (offsetx + CONSTANTS.BW / 2, offsety + CONSTANTS.BH * 0.7),
                 (offsetx + CONSTANTS.BW * 0.8, offsety),
                 width=4,
             )
-        display.blit(CONSTANTS.font.render(self.text, True, BLACK), (offsetx + CONSTANTS.BW * 1.2, offsety))
+        display.blit(
+            CONSTANTS.font.render(self.text, True, config.colours.text), (offsetx + CONSTANTS.BW * 1.2, offsety)
+        )
 
     def check_highlight(self, pos_x, pos_y):
         if (
@@ -68,8 +70,8 @@ class Button:
         self.y = y0
         self.x = x0
         self.texts = [
-            lambda: CONSTANTS.font.render(self.text, True, config.colours.colours_list["black"]),
-            lambda: CONSTANTS.font.render(self.text, True, config.colours.text_highlight_colour),
+            lambda: CONSTANTS.font.render(self.text, True, config.colours.text),
+            lambda: CONSTANTS.font.render(self.text, True, config.colours.text_highlight),
         ]
 
     def draw(self, offsetx, offsety):
@@ -95,7 +97,7 @@ class Info:
         self.y = y0
         self.x = x0
         self.getText = lambda: CONSTANTS.font.render(
-            getText if isinstance(getText, str) else getText(), True, config.colours.colours_list["black"]
+            getText if isinstance(getText, str) else getText(), True, config.colours.text
         )
 
     def draw(self, offsetx, offsety):
@@ -159,11 +161,11 @@ class Cursor:
         )
 
     def highlight(self):
-        draw_square(config.colours.highlight_colour, self.cellx, self.celly)
+        draw_square(config.colours.highlight, self.cellx, self.celly)
 
     def draw_carry(self):
         if self.carry:
             display.blit(
-                CONSTANTS.font.render(self.carry, True, BLACK),
+                CONSTANTS.font.render(self.carry, True, config.colours.text),
                 ((self.cellx + 0.1) * CONSTANTS.BW, (self.celly - 0.1) * CONSTANTS.BH),
             )
