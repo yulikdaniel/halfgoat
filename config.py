@@ -1,81 +1,64 @@
 import time
+from typing import NamedTuple
 
 import pygame
+from pydantic import BaseModel, validator
 from pygame.locals import QUIT
 
 import checker.new_check as checker
 
-alph = [
-    ('а', 8.01),
-    ('б', 1.59),
-    ('в', 4.54),
-    ('г', 1.7),
-    ('д', 2.98),
-    ('е', 8.45),
-    ('ё', 0.04),
-    ('ж', 0.94),
-    ('з', 1.65),
-    ('и', 7.35),
-    ('й', 1.21),
-    ('к', 3.49),
-    ('л', 4.4),
-    ('м', 3.21),
-    ('н', 6.7),
-    ('о', 10.97),
-    ('п', 2.81),
-    ('р', 4.73),
-    ('с', 5.47),
-    ('т', 6.26),
-    ('у', 2.62),
-    ('ф', 0.26),
-    ('х', 0.97),
-    ('ц', 0.48),
-    ('ч', 1.44),
-    ('ш', 0.73),
-    ('щ', 0.36),
-    ('ъ', 0.04),
-    ('ы', 1.9),
-    ('ь', 1.74),
-    ('э', 0.32),
-    ('ю', 0.64),
-    ('я', 2.01),
-]
 
-cons = {
-    'а': 0,
-    'б': 1,
-    'в': 1,
-    'г': 1,
-    'д': 1,
-    'е': 0,
-    'ё': 0,
-    'ж': 1,
-    'з': 1,
-    'и': 0,
-    'й': 1,
-    'к': 1,
-    'л': 1,
-    'м': 1,
-    'н': 1,
-    'о': 0,
-    'п': 1,
-    'р': 1,
-    'с': 1,
-    'т': 1,
-    'у': 0,
-    'ф': 1,
-    'х': 1,
-    'ц': 1,
-    'ч': 1,
-    'ш': 1,
-    'щ': 1,
-    'ъ': 2,
-    'ы': 0,
-    'ь': 2,
-    'э': 0,
-    'ю': 0,
-    'я': 0,
-}
+class LettersSettings(BaseModel):
+    min_vowel_amt: int
+    min_consonant_amt: int
+    probability: dict[str, float]
+    vowels: list[str]
+    consonants: list[str]
+
+
+class ColoursSettings(BaseModel):
+    class Colour(NamedTuple):
+        r: int
+        g: int
+        b: int
+
+    colours_list: dict[str, Colour]
+
+    text_highlight: Colour
+    highlight: Colour
+    highlight_correct: Colour
+    highlight_wrong: Colour
+    background: Colour
+    tick_box: Colour
+    tick_mark: Colour
+    text: Colour
+    grid: Colour
+
+    @validator(
+        "text_highlight",
+        "highlight",
+        "highlight_correct",
+        "highlight_wrong",
+        "background",
+        "tick_box",
+        "tick_mark",
+        "text",
+        "grid",
+        pre=True,
+    )
+    def validate_colour_name(cls, col_name, values):
+        if "colours_list" in values and col_name not in values["colours_list"]:
+            raise ValueError(f"colour {col_name} should be in colours list")
+        return values["colours_list"][col_name]
+
+
+class Config(BaseModel):
+    letters: LettersSettings
+    colours: ColoursSettings
+    frames_per_second: int
+
+
+config = Config.parse_file("config.json")
 
 
 deliverEvents = dict()
@@ -93,37 +76,15 @@ def clearRegisteredEvents():
     deliverEvents.clear()
 
 
-minv = 6
-minc = 10
-
-LIGHT_YELLOW = (255, 255, 153)
-LIGHT_RED = (255, 153, 153)
-LIGHT_GREEN = (150, 250, 150)
-GREEN = (0, 255, 0)
-RED = (255, 0, 0)
-BLUE = (0, 0, 255)
-ORANGE = (255, 180, 0)
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-GREY = (120, 120, 120)
-
-TEXT_HIGHLIGHT_COLOUR = LIGHT_GREEN
-HIGHLIGHT_COLOUR = LIGHT_YELLOW
-HIGHLIGHT_CORRECT = LIGHT_GREEN
-HIGHLIGHT_WRONG = LIGHT_RED
-
 class SizeConstants:
     def __init__(self):
         self.update()
-    
+
     def update_font_size(self):
-        self.font_size = -1
-        for i in range(100):
-            let_size = pygame.font.SysFont("comicsansms", i).size("А")
-            if let_size[1] > 0.8 * self.BH or let_size[0] > 0.8 * self.BW:
-                self.font_size = i - 1
-                break
-        self.font = pygame.font.SysFont("comicsansms", self.font_size)
+        sample_size = 100
+        sample_let_size = pygame.font.SysFont("comicsansms", sample_size).size("A")
+        font_size = self.BH / sample_let_size[1] * 0.8 * sample_size
+        self.font = pygame.font.SysFont("comicsansms", int(font_size))
 
     def update(self):
         self.WIDTH = 20
@@ -138,6 +99,7 @@ class SizeConstants:
         self.MENUWIDTH = info.current_w - self.B
         self.update_font_size()
 
+
 checker.build()
 
 iconImg = pygame.image.load("pics/Icon.png")
@@ -149,10 +111,8 @@ display = pygame.display.set_mode(flags=pygame.RESIZABLE)
 CONSTANTS = SizeConstants()
 clock = pygame.time.Clock()
 
-FPS = 60
-
-COLOURS = [GREEN, RED, BLUE, ORANGE]
 t1 = 0
+
 
 def register_general_events():
     registerForEvent(pygame.WINDOWRESIZED, lambda: CONSTANTS.update())
@@ -162,8 +122,8 @@ def tech_pygame():
     global deliverEvents
     global t1
     pygame.display.update()
-    display.fill(WHITE)
-    clock.tick(FPS)
+    display.fill(config.colours.background)
+    clock.tick(config.frames_per_second)
     t1 = time.time()
     for event in pygame.event.get():
         if event.type == QUIT:
