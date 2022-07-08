@@ -4,3 +4,4 @@ black==22.6.0
 isort==5.10.1
 pre-commit==2.19.0
 pydantic==1.9.1
+pytest==7.1.2
