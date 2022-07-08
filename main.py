@@ -18,22 +18,22 @@ def launch_game(SEED):
             Tick(
                 "Score Count",
                 lambda instance: toggle_scorecount(gameField, instance),
-                y0=lambda: CONSTANTS.BH,
+                y0=lambda: field_sizes.cell_height,
                 state=True,
             ),
-            Info(lambda: "Current checkpoint: {}".format(current_checkpoint() + 1), y0=lambda: 2 * CONSTANTS.BH),
+            Info(lambda: "Current checkpoint: {}".format(current_checkpoint() + 1), y0=lambda: 2 * field_sizes.cell_height),
             Button(
-                "Checkpoint 1", lambda instance: switch_checkpoint(gameField, 0, instance), y0=lambda: 3 * CONSTANTS.BH
+                "Checkpoint 1", lambda instance: switch_checkpoint(gameField, 0, instance), y0=lambda: 3 * field_sizes.cell_height
             ),
             Button(
-                "Checkpoint 2", lambda instance: switch_checkpoint(gameField, 1, instance), y0=lambda: 4 * CONSTANTS.BH
+                "Checkpoint 2", lambda instance: switch_checkpoint(gameField, 1, instance), y0=lambda: 4 * field_sizes.cell_height
             ),
             Button(
-                "Checkpoint 3", lambda instance: switch_checkpoint(gameField, 2, instance), y0=lambda: 5 * CONSTANTS.BH
+                "Checkpoint 3", lambda instance: switch_checkpoint(gameField, 2, instance), y0=lambda: 5 * field_sizes.cell_height
             ),
         ],
-        lambda: CONSTANTS.A + CONSTANTS.BH * 2,
-        lambda: 200 + CONSTANTS.BW * 2,
+        lambda: field_sizes.field_height + field_sizes.cell_height * 2,
+        lambda: 200 + field_sizes.cell_width * 2,
     )
 
     registerForEvent(MOUSEBUTTONUP, cursor.process_up)
@@ -65,11 +65,11 @@ def start_menu():
     register_general_events()
     menu = Menu(
         [
-            Info(lambda: "Enter seed: {}".format(SEED if SEED else "random"), y0=lambda: CONSTANTS.BH),
+            Info(lambda: "Enter seed: {}".format(SEED if SEED else "random"), y0=lambda: field_sizes.cell_height),
             Button(
                 "Launch game",
                 lambda instance: launch_game(random.randint(0, 10**9) if SEED == 0 else SEED),
-                y0=lambda: 2 * CONSTANTS.BH,
+                y0=lambda: 2 * field_sizes.cell_height,
             ),
         ],
         lambda: 0,

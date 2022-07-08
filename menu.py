@@ -19,39 +19,39 @@ class Tick:
         pygame.draw.rect(
             display,
             config.colours.tick_box,
-            (offsetx, offsety - 0.2 * CONSTANTS.BH, CONSTANTS.BW, CONSTANTS.BH),
+            (offsetx, offsety - 0.2 * field_sizes.cell_height, field_sizes.cell_width, field_sizes.cell_height),
             width=3,
         )
         if self.highlight:
             pygame.draw.rect(
                 display,
                 config.colours.highlight,
-                (offsetx, offsety - 0.2 * CONSTANTS.BH, CONSTANTS.BW, CONSTANTS.BH),
+                (offsetx, offsety - 0.2 * field_sizes.cell_height, field_sizes.cell_width, field_sizes.cell_height),
                 width=0,
             )
         if self.state:
             pygame.draw.line(
                 display,
                 config.colours.tick_mark,
-                (offsetx + 0.2 * CONSTANTS.BW, offsety + 0.1 * CONSTANTS.BH),
-                (offsetx + CONSTANTS.BW / 2, offsety + CONSTANTS.BH * 0.7),
+                (offsetx + 0.2 * field_sizes.cell_width, offsety + 0.1 * field_sizes.cell_height),
+                (offsetx + field_sizes.cell_width / 2, offsety + field_sizes.cell_height * 0.7),
                 width=4,
             )
             pygame.draw.line(
                 display,
                 config.colours.tick_mark,
-                (offsetx + CONSTANTS.BW / 2, offsety + CONSTANTS.BH * 0.7),
-                (offsetx + CONSTANTS.BW * 0.8, offsety),
+                (offsetx + field_sizes.cell_width / 2, offsety + field_sizes.cell_height * 0.7),
+                (offsetx + field_sizes.cell_width * 0.8, offsety),
                 width=4,
             )
         display.blit(
-            CONSTANTS.font.render(self.text, True, config.colours.text), (offsetx + CONSTANTS.BW * 1.2, offsety)
+            field_sizes.font.render(self.text, True, config.colours.text), (offsetx + field_sizes.cell_width * 1.2, offsety)
         )
 
     def check_highlight(self, pos_x, pos_y):
         if (
-            self.x() <= pos_x <= self.x() + CONSTANTS.BW
-            and self.y() <= pos_y + 0.2 * CONSTANTS.BH <= self.y() + CONSTANTS.BH
+            self.x() <= pos_x <= self.x() + field_sizes.cell_width
+            and self.y() <= pos_y + 0.2 * field_sizes.cell_height <= self.y() + field_sizes.cell_height
         ):
             self.highlight = True
         else:
@@ -70,8 +70,8 @@ class Button:
         self.y = y0
         self.x = x0
         self.texts = [
-            lambda: CONSTANTS.font.render(self.text, True, config.colours.text),
-            lambda: CONSTANTS.font.render(self.text, True, config.colours.text_highlight),
+            lambda: field_sizes.font.render(self.text, True, config.colours.text),
+            lambda: field_sizes.font.render(self.text, True, config.colours.text_highlight),
         ]
 
     def draw(self, offsetx, offsety):
@@ -96,7 +96,7 @@ class Info:
         self.highlight = False
         self.y = y0
         self.x = x0
-        self.getText = lambda: CONSTANTS.font.render(
+        self.getText = lambda: field_sizes.font.render(
             getText if isinstance(getText, str) else getText(), True, config.colours.text
         )
 
@@ -156,8 +156,8 @@ class Cursor:
 
     def update_coords(self):
         self.x, self.y = pygame.mouse.get_pos()
-        self.cellx, self.celly = min(CONSTANTS.WIDTH - 1, self.x // CONSTANTS.BW), min(
-            CONSTANTS.HEIGHT - 1, self.y // CONSTANTS.BH
+        self.cellx, self.celly = min(config.hor_cell_amt - 1, self.x // field_sizes.cell_width), min(
+            config.ver_cell_amt - 1, self.y // field_sizes.cell_height
         )
 
     def highlight(self):
@@ -166,6 +166,6 @@ class Cursor:
     def draw_carry(self):
         if self.carry:
             display.blit(
-                CONSTANTS.font.render(self.carry, True, config.colours.text),
-                ((self.cellx + 0.1) * CONSTANTS.BW, (self.celly - 0.1) * CONSTANTS.BH),
+                field_sizes.font.render(self.carry, True, config.colours.text),
+                ((self.cellx + 0.1) * field_sizes.cell_width, (self.celly - 0.1) * field_sizes.cell_height),
             )
