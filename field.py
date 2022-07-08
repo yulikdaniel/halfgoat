@@ -3,7 +3,7 @@ import random
 import pygame
 
 import checker.new_check as checker
-from config import field_sizes, config, display
+from config import config, display, field_sizes
 
 
 def draw_square_pos(col, x, y, xsz=field_sizes.cell_width, ysz=field_sizes.cell_height, width=0):
@@ -12,7 +12,15 @@ def draw_square_pos(col, x, y, xsz=field_sizes.cell_width, ysz=field_sizes.cell_
 
 def draw_square(col, x, y, width=0):
     pygame.draw.rect(
-        display, col, (x * field_sizes.cell_width + 3, y * field_sizes.cell_height + 3, field_sizes.cell_width - 6, field_sizes.cell_height - 6), width=width
+        display,
+        col,
+        (
+            x * field_sizes.cell_width + 3,
+            y * field_sizes.cell_height + 3,
+            field_sizes.cell_width - 6,
+            field_sizes.cell_height - 6,
+        ),
+        width=width,
     )
 
 
@@ -74,7 +82,10 @@ class Field:
             )
             display.blit(
                 field_sizes.font.render(str(count_score(self)), True, config.colours.text),
-                ((config.hor_cell_amt + 3) * field_sizes.cell_width + field_sizes.font.size("SCORE: ")[0], field_sizes.cell_height),
+                (
+                    (config.hor_cell_amt + 3) * field_sizes.cell_width + field_sizes.font.size("SCORE: ")[0],
+                    field_sizes.cell_height,
+                ),
             )
 
     def highlight_correct(self):

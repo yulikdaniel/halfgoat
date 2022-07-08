@@ -21,15 +21,24 @@ def launch_game(SEED):
                 y0=lambda: field_sizes.cell_height,
                 state=True,
             ),
-            Info(lambda: "Current checkpoint: {}".format(current_checkpoint() + 1), y0=lambda: 2 * field_sizes.cell_height),
-            Button(
-                "Checkpoint 1", lambda instance: switch_checkpoint(gameField, 0, instance), y0=lambda: 3 * field_sizes.cell_height
+            Info(
+                lambda: "Current checkpoint: {}".format(current_checkpoint() + 1),
+                y0=lambda: 2 * field_sizes.cell_height,
             ),
             Button(
-                "Checkpoint 2", lambda instance: switch_checkpoint(gameField, 1, instance), y0=lambda: 4 * field_sizes.cell_height
+                "Checkpoint 1",
+                lambda instance: switch_checkpoint(gameField, 0, instance),
+                y0=lambda: 3 * field_sizes.cell_height,
             ),
             Button(
-                "Checkpoint 3", lambda instance: switch_checkpoint(gameField, 2, instance), y0=lambda: 5 * field_sizes.cell_height
+                "Checkpoint 2",
+                lambda instance: switch_checkpoint(gameField, 1, instance),
+                y0=lambda: 4 * field_sizes.cell_height,
+            ),
+            Button(
+                "Checkpoint 3",
+                lambda instance: switch_checkpoint(gameField, 2, instance),
+                y0=lambda: 5 * field_sizes.cell_height,
             ),
         ],
         lambda: field_sizes.field_height + field_sizes.cell_height * 2,

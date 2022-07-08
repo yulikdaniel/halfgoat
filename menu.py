@@ -45,7 +45,8 @@ class Tick:
                 width=4,
             )
         display.blit(
-            field_sizes.font.render(self.text, True, config.colours.text), (offsetx + field_sizes.cell_width * 1.2, offsety)
+            field_sizes.font.render(self.text, True, config.colours.text),
+            (offsetx + field_sizes.cell_width * 1.2, offsety),
         )
 
     def check_highlight(self, pos_x, pos_y):
