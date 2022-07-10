@@ -1,5 +1,7 @@
 {
     "frames_per_second": 60,
+    "ver_cell_amt": 20,
+    "hor_cell_amt": 20,
     "colours": {
         "colours_list": {
             "light_yellow": [255, 255, 153],

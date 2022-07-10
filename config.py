@@ -56,6 +56,8 @@ class Config(BaseModel):
     letters: LettersSettings
     colours: ColoursSettings
     frames_per_second: int
+    ver_cell_amt: int
+    hor_cell_amt: int
 
 
 config = Config.parse_file("config.json")
@@ -76,28 +78,43 @@ def clearRegisteredEvents():
     deliverEvents.clear()
 
 
-class SizeConstants:
+class FieldSizes:
     def __init__(self):
         self.update()
 
     def update_font_size(self):
         sample_size = 100
         sample_let_size = pygame.font.SysFont("comicsansms", sample_size).size("A")
-        font_size = self.BH / sample_let_size[1] * 0.8 * sample_size
+        font_size = self.cell_height / sample_let_size[1] * 0.8 * sample_size
         self.font = pygame.font.SysFont("comicsansms", int(font_size))
 
     def update(self):
-        self.WIDTH = 20
-        self.HEIGHT = 20
-        info = pygame.display.Info()
-        self.A = min(info.current_h, info.current_w)
-        self.B = self.A
-        self.A -= self.A % self.WIDTH
-        self.B -= self.B % self.HEIGHT
-        self.BW = self.A // self.WIDTH
-        self.BH = self.B // self.HEIGHT
-        self.MENUWIDTH = info.current_w - self.B
+        self.dp_info = pygame.display.Info()
         self.update_font_size()
+
+    @property
+    def field_height(self):
+        height = min(self.dp_info.current_h, self.dp_info.current_w)
+        height -= height % config.ver_cell_amt
+        return height
+
+    @property
+    def field_width(self):
+        width = min(self.dp_info.current_h, self.dp_info.current_w)
+        width -= width % config.hor_cell_amt
+        return width
+
+    @property
+    def cell_height(self):
+        return self.field_height // config.ver_cell_amt
+
+    @property
+    def cell_width(self):
+        return self.field_width // config.hor_cell_amt
+
+    @property
+    def menu_width(self):
+        return self.dp_info.current_w - self.field_width
 
 
 checker.build()
@@ -108,14 +125,14 @@ pygame.init()
 pygame.display.set_icon(iconImg)
 pygame.display.set_caption("Semigoat")
 display = pygame.display.set_mode(flags=pygame.RESIZABLE)
-CONSTANTS = SizeConstants()
+field_sizes = FieldSizes()
 clock = pygame.time.Clock()
 
 t1 = 0
 
 
 def register_general_events():
-    registerForEvent(pygame.WINDOWRESIZED, lambda: CONSTANTS.update())
+    registerForEvent(pygame.WINDOWRESIZED, lambda: field_sizes.update())
 
 
 def tech_pygame():

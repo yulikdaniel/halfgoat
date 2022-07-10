@@ -25,7 +25,7 @@ bor = Bor()
 
 
 def build():
-    with open("checker/word_rus.txt", 'r') as f:
+    with open("checker/word_rus.txt", 'r', encoding="utf-8") as f:
         for word in f.readlines():
             bor.add(word.strip())
 

@@ -3,29 +3,37 @@ import random
 import pygame
 
 import checker.new_check as checker
-from config import CONSTANTS, config, display
+from config import config, display, field_sizes
 
 
-def draw_square_pos(col, x, y, xsz=CONSTANTS.BW, ysz=CONSTANTS.BH, width=0):
+def draw_square_pos(col, x, y, xsz=field_sizes.cell_width, ysz=field_sizes.cell_height, width=0):
     pygame.draw.rect(display, col, (x, y, xsz, ysz), width=width)
 
 
 def draw_square(col, x, y, width=0):
     pygame.draw.rect(
-        display, col, (x * CONSTANTS.BW + 3, y * CONSTANTS.BH + 3, CONSTANTS.BW - 6, CONSTANTS.BH - 6), width=width
+        display,
+        col,
+        (
+            x * field_sizes.cell_width + 3,
+            y * field_sizes.cell_height + 3,
+            field_sizes.cell_width - 6,
+            field_sizes.cell_height - 6,
+        ),
+        width=width,
     )
 
 
 def draw_blank():
     display.fill(config.colours.background)
-    for x in range(0, CONSTANTS.A + 1, CONSTANTS.BW):
-        pygame.draw.line(display, config.colours.grid, (x, 0), (x, CONSTANTS.B))
-    for y in range(0, CONSTANTS.B + 1, CONSTANTS.BH):
-        pygame.draw.line(display, config.colours.grid, (0, y), (CONSTANTS.A, y))
+    for x in range(0, field_sizes.field_height + 1, field_sizes.cell_width):
+        pygame.draw.line(display, config.colours.grid, (x, 0), (x, field_sizes.field_width))
+    for y in range(0, field_sizes.field_width + 1, field_sizes.cell_height):
+        pygame.draw.line(display, config.colours.grid, (0, y), (field_sizes.field_height, y))
 
 
 def inField(x, y):
-    return x >= 0 and y >= 0 and x < CONSTANTS.WIDTH and y < CONSTANTS.HEIGHT
+    return x >= 0 and y >= 0 and x < config.hor_cell_amt and y < config.ver_cell_amt
 
 
 def generate_letters(seed=None):
@@ -46,7 +54,7 @@ def generate_letters(seed=None):
 
 class Field:
     def __init__(self, letters):
-        self.field = [['' for x in range(CONSTANTS.WIDTH)] for y in range(CONSTANTS.HEIGHT)]
+        self.field = [['' for x in range(config.hor_cell_amt)] for y in range(config.ver_cell_amt)]
         self.spellcheck = True
         self.scorecount = True
         self.highlight = None
@@ -55,32 +63,35 @@ class Field:
 
     def draw(self):
         draw_blank()
-        self.highlight = [[set() for x in range(CONSTANTS.WIDTH)] for y in range(CONSTANTS.HEIGHT)]
+        self.highlight = [[set() for x in range(config.hor_cell_amt)] for y in range(config.ver_cell_amt)]
         if self.spellcheck:
             self.highlight_correct()
         self.draw_highlight()
         self.cursor.highlight()
-        for x in range(CONSTANTS.WIDTH):
-            for y in range(CONSTANTS.HEIGHT):
+        for x in range(config.hor_cell_amt):
+            for y in range(config.ver_cell_amt):
                 if self.field[y][x]:
                     display.blit(
-                        CONSTANTS.font.render(self.field[y][x], True, config.colours.text),
-                        ((x + 0.2) * CONSTANTS.BW, (y + 0.1) * CONSTANTS.BH),
+                        field_sizes.font.render(self.field[y][x], True, config.colours.text),
+                        ((x + 0.2) * field_sizes.cell_width, (y + 0.1) * field_sizes.cell_height),
                     )
         if self.scorecount:
             display.blit(
-                CONSTANTS.font.render("SCORE: ", True, config.colours.text),
-                ((CONSTANTS.WIDTH + 3) * CONSTANTS.BW, CONSTANTS.BH),
+                field_sizes.font.render("SCORE: ", True, config.colours.text),
+                ((config.hor_cell_amt + 3) * field_sizes.cell_width, field_sizes.cell_height),
             )
             display.blit(
-                CONSTANTS.font.render(str(count_score(self)), True, config.colours.text),
-                ((CONSTANTS.WIDTH + 3) * CONSTANTS.BW + CONSTANTS.font.size("SCORE: ")[0], CONSTANTS.BH),
+                field_sizes.font.render(str(count_score(self)), True, config.colours.text),
+                (
+                    (config.hor_cell_amt + 3) * field_sizes.cell_width + field_sizes.font.size("SCORE: ")[0],
+                    field_sizes.cell_height,
+                ),
             )
 
     def highlight_correct(self):
-        for x in range(CONSTANTS.WIDTH):
+        for x in range(config.hor_cell_amt):
             cur = 0
-            for y in range(CONSTANTS.HEIGHT):
+            for y in range(config.ver_cell_amt):
                 if self.field[y][x]:
                     cur += 1
                 else:
@@ -90,9 +101,9 @@ class Field:
             if cur > 1:
                 self.highlight_word(x, y - cur + 1, cur, True)
 
-        for y in range(CONSTANTS.HEIGHT):
+        for y in range(config.ver_cell_amt):
             cur = 0
-            for x in range(CONSTANTS.WIDTH):
+            for x in range(config.hor_cell_amt):
                 if self.field[y][x]:
                     cur += 1
                 else:
@@ -118,8 +129,8 @@ class Field:
                 self.highlight[y][x].add(col)
 
     def draw_highlight(self):
-        for x in range(CONSTANTS.WIDTH):
-            for y in range(CONSTANTS.HEIGHT):
+        for x in range(config.hor_cell_amt):
+            for y in range(config.ver_cell_amt):
                 if len(self.highlight[y][x]) == 0:
                     continue
                 res = [0, 0, 0]
@@ -133,30 +144,30 @@ class Field:
 
 def count_score(field):
     score = 0
-    for x in range(CONSTANTS.WIDTH):
+    for x in range(config.hor_cell_amt):
         curl = 0
-        for y in range(CONSTANTS.HEIGHT):
+        for y in range(config.ver_cell_amt):
             if field.field[y][x]:
                 curl += 1
                 score += max(0, (curl - 4) // 2)
             else:
                 curl = 0
-    for y in range(CONSTANTS.HEIGHT):
+    for y in range(config.ver_cell_amt):
         curl = 0
-        for x in range(CONSTANTS.WIDTH):
+        for x in range(config.hor_cell_amt):
             if field.field[y][x]:
                 curl += 1
                 score += max(0, (curl - 4) // 2)
             else:
                 curl = 0
 
-    used = [[False for x in range(CONSTANTS.WIDTH)] for y in range(CONSTANTS.HEIGHT)]
+    used = [[False for x in range(config.hor_cell_amt)] for y in range(config.ver_cell_amt)]
 
     def dfs(x, y, used, s, xf, yf):
         ring_score = 0
         used[y][x] = True
         for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-            if 0 <= x + dx < CONSTANTS.WIDTH and 0 <= y + dy < CONSTANTS.HEIGHT and field.field[y + dy][x + dx]:
+            if 0 <= x + dx < config.hor_cell_amt and 0 <= y + dy < config.ver_cell_amt and field.field[y + dy][x + dx]:
                 if used[y + dy][x + dx]:
                     if (xf, yf) != (x + dx, y + dy):
                         ring_score += 1
@@ -166,8 +177,8 @@ def count_score(field):
         return ring_score
 
     numc = 0
-    for y in range(CONSTANTS.HEIGHT):
-        for x in range(CONSTANTS.WIDTH):
+    for y in range(config.ver_cell_amt):
+        for x in range(config.hor_cell_amt):
             if field.field[y][x] and not used[y][x]:
                 s = set()
                 ring = dfs(x, y, used, s, -1, -1)
